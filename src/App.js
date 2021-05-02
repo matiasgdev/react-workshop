@@ -1,24 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from 'react'
+import NavBar from './components/NavBar'
+import HomePage from './pages/HomePage';
+import CatalogPage from './pages/CatalogPage';
+import CartPage from './pages/CartPage';
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
+import ProductDetailPage from './pages/ProductDetailPage';
+
+export const CartContext = React.createContext([])
 
 function App() {
+  const [cart, setCart] = useState([])
+ 
+  function isInCart (id) {
+    return cart.some(item => item.id === id)
+  }
+
+  function setCartItem({id, title, count}) {
+    const isCurrentInCart = isInCart(id)
+    if (isCurrentInCart) {
+      const newCart = cart.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            count: count + item.count
+          }
+        }
+      })
+      return setCart([...newCart])
+    }
+    setCart([...cart, {id, title, count}])
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <NavBar />
+        <Switch>
+          <Route exact path="/">
+            <HomePage />
+          </Route>
+          <CartContext.Provider value={{setCartItem, cart}}>
+            <Route exact path="/catalogo">
+              <CatalogPage />
+            </Route>
+
+            <Route path="/catalogo/:id">
+              <ProductDetailPage />
+            </Route>
+
+            <Route path="/cart">
+              <CartPage />
+            </Route>
+
+          </CartContext.Provider>
+
+        </Switch>
+    </Router>
   );
 }
 

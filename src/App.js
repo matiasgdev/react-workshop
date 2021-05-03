@@ -25,6 +25,7 @@ function App() {
             count: count + item.count
           }
         }
+        return item
       })
       return setCart([...newCart])
     }
